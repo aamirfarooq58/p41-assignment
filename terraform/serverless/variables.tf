@@ -42,7 +42,7 @@ variable "lambda_config" {
     handler       = "bootstrap"
     timeout       = 30
     memory_size   = 128
-    zip_path      = "/Users/aamirfarooq/Desktop/particle41/terraform/function/function.zip"
+    zip_path      = "terraform/function/function.zip"
   }
 }
 
