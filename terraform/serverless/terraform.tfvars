@@ -6,7 +6,7 @@ lambda_config = {
   handler       = "bootstrap"
   timeout       = 60
   memory_size   = 256
-  zip_path      = "/Users/aamirfarooq/Desktop/particle41/terraform/function/function.zip"
+  zip_path      = "terraform/function/function.zip"
 }
 
 log_retention_days = 5
