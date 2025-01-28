@@ -24,3 +24,7 @@ terraform apply
 ## Cleanup
 terraform destroy
 
+## Set Concourse Pipeline
+Update the vars.yaml file.
+cd terraform/Pipeline
+fly -t your-target set-pipeline -p lambda-deploy -c pipeline.yml -l vars.yml

@@ -1,0 +1,65 @@
+
+build_timeservice: &build_timeservice |
+  WD=$(pwd)
+  cd ${WD}/p41-assignment/terraform/
+  GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bootstrap function/main.go  
+  zip function.zip function/bootstrap
+deploy_timeservice: &deploy_timeservice |
+  WD=$(pwd)
+  cd ${WD}/p41-assignment/terraform/serverless
+  terraform init
+  terraform plan
+  terraform apply -auto-approve
+
+
+resources:
+- name: source-code
+  type: git
+  source:
+    uri: ((git_repository))
+    branch: main
+
+jobs:
+- name: deploy-lambda
+  plan:
+  - get: source-code
+    trigger: true
+  - task: build-lambda
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: amazonlinux
+          tag: '2'
+      inputs:
+        - name: source-code
+      outputs:
+        - name: function-zip
+      run:
+          path: sh
+          args:
+          - -exc
+          - *build_timeservice
+
+  - task: terraform-apply
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: hashicorp/terraform
+          tag: 'latest'
+      inputs:
+        - name: source-code
+        - name: function-zip
+      params:
+        AWS_ACCESS_KEY_ID: ((aws_access_key))
+        AWS_SECRET_ACCESS_KEY: ((aws_secret_key))
+        AWS_DEFAULT_REGION: us-east-1
+      run:
+        path: sh
+        args:
+          - -exc
+          - *deploy_timeservice
+            
